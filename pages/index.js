@@ -20,7 +20,7 @@ export default function Home({ posts }) {
   // console.log("POSTS: ", posts);
   return (
     <div className="bg-darkbg min-h-screen">
-      <div className="max-2-2xl bg-darkbg mx-auto md:py-8 md:px-0 flex flex-col md:justify-start md:items-center">
+      <div className="bg-darkbg mx-auto md:py-8 md:px-0 flex flex-col md:justify-start md:items-center">
         <Navigation />
       </div>
       <div className="text-white px-8 md:p-8 flex flex-col md:block items-start justify-start mx-auto w-full md:w-[70%]">
