@@ -32,7 +32,7 @@ export default function Blog({ posts }) {
             key="viewport"
           />
         </Head>
-        <div className="max-2-2xl mx-auto md:py-8 md:px-0 flex flex-col md:justify-start md:items-center">
+        <div className="mx-auto md:py-8 md:px-0 flex flex-col md:justify-start md:items-center">
           <Navigation />
         </div>
         <div className="p-16 md:p-12 flex flex-col md:block items-center justify-center mx-auto w-full md:w-[70%]">
