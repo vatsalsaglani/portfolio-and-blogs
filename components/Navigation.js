@@ -6,7 +6,7 @@ export default function Navigation() {
   const [openBar, setOpenBar] = useState(false);
   return (
     <>
-      <div className="w-[80%]  p-8 hidden md:block ">
+      <div className="w-[70%] py-8 hidden md:block ">
         <div className="md:flex bg-darkbg flex-row items-start justify-start  mx-auto rounded-md">
           <div className="flex flex-row justify-around w-[60%] items-start">
             <NavLink href={"/"}>
