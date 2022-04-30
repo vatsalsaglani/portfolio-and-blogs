@@ -31,11 +31,6 @@ export const Leetcode = defineDocumentType(() => ({
       description: "Link to Leetcode question",
       required: true,
     },
-    thumbnail: {
-      type: "string",
-      description: "Link to Thumbnail Image",
-      required: true,
-    },
     difficulty: {
       type: "string",
       description: "Difficulty level of the question",
