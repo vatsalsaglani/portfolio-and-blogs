@@ -19,6 +19,11 @@ export default function Navigation() {
                 Blog
               </div>
             </NavLink>
+            <NavLink href={"/leetcode"}>
+              <div className="flex flex-row items-center justify-center">
+                Leetcode
+              </div>
+            </NavLink>
             <NavLink href={"/contact"}>
               <div className="flex flex-row items-center justify-center">
                 Contact
@@ -60,6 +65,7 @@ export default function Navigation() {
               <div className="flex flex-col justify-center items-center h-screen w-full space-y-4 ">
                 <NavLink href={"/"}>About</NavLink>
                 <NavLink href={"/blog"}>Blog</NavLink>
+                <NavLink href={"/leetcode"}>Leetcode</NavLink>
                 <NavLink href={"/contact"}>Contact</NavLink>
               </div>
             </div>
