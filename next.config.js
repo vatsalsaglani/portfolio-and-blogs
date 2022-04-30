@@ -7,6 +7,7 @@ module.exports = withContentlayer({
       "images.unsplash.com",
       "source.unsplash.com",
       "images.pexels.com",
+      "i.imgur.com",
     ],
   },
 });
