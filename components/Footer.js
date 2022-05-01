@@ -99,13 +99,16 @@ export const SiteMapColumn = () => {
         <p className="font-Work">Sitemap</p>
         <div className="space-y-1">
           <div className="text-sm text-gray-400 md:text-base">
-            <FooterLink link={"/"}>Blog</FooterLink>
+            <FooterLink link={"/"}>About</FooterLink>
           </div>
           <div className="text-sm text-gray-400 md:text-base">
-            <FooterLink link={"/about"}>About</FooterLink>
+            <FooterLink link={"/blog"}>Blog</FooterLink>
           </div>
           <div className="text-sm text-gray-400 md:text-base">
-            <FooterLink link={"/projects"}>Projects</FooterLink>
+            <FooterLink link={"/leetcode"}>Leetcode</FooterLink>
+          </div>
+          <div className="text-sm text-gray-400 md:text-base">
+            <FooterLink link={"/contact"}>Contact</FooterLink>
           </div>
         </div>
       </div>
