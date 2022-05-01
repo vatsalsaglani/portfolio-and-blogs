@@ -2,45 +2,52 @@ import { useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { compareDesc, format, parseISO } from "date-fns";
-import { allPosts } from "contentlayer/generated";
+import { allLeetcodes } from "contentlayer/generated";
 import Navigation from "../components/Navigation";
 import Footer from "../components/Footer";
-import PostCard from "../components/PostCard";
-
-import pick from "../lib/utils";
+import LeetCodeCard from "../components/LeetCodeCard";
 import Search from "../components/Search";
 
+import pick from "../lib/utils";
+
 export async function getStaticProps() {
-  const posts = allPosts
-    .map((post) =>
-      pick(post, ["url", "title", "date", "desc", "readingTime", "slug"])
+  const leetcodes = allLeetcodes
+    .map((lc) =>
+      pick(lc, [
+        "url",
+        "title",
+        "question",
+        "difficulty",
+        "readingTime",
+        "slug",
+        "date",
+      ])
     )
     .sort((a, b) => {
       return compareDesc(new Date(a.date), new Date(b.date));
     });
-
-  return { props: { posts } };
+  return { props: { leetcodes } };
 }
 
-export default function Blog({ posts }) {
+export default function LeetCode({ leetcodes }) {
   const [searchText, setSearchText] = useState("");
+
+  const filtered_lc = leetcodes.filter(
+    (lc) =>
+      lc.title.toLowerCase().includes(searchText.trim().toLowerCase()) ||
+      lc.question.toLowerCase().includes(searchText.trim().toLowerCase())
+  );
 
   const onChangeSearch = (event) => {
     let v = event.target.value;
     setSearchText(v);
   };
 
-  const filtered_posts = posts.filter(
-    (post) =>
-      post.title.toLowerCase().includes(searchText.trim().toLowerCase()) ||
-      post.desc.toLowerCase().includes(searchText.trim().toLowerCase())
-  );
-
   return (
     <div>
       <div className="bg-darkbg min-h-screen space-y-4">
         <Head>
-          <title>Blogs | Vatsal Saglani</title>
+          <title>Leetcode | Vatsal Saglani</title>
           <meta
             name="viewport"
             content="initial-scale=1.0, width=device-width"
@@ -52,9 +59,10 @@ export default function Blog({ posts }) {
         </div>
         <div className="p-16 md:p-12 flex flex-col md:block items-center justify-center mx-auto w-full md:w-[70%]">
           <Search value={searchText} setter={onChangeSearch} />
-          <div className="space-y-8 mt-8">
-            {filtered_posts.map((post, idx) => (
-              <PostCard key={idx} {...post} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {filtered_lc.map((lc, idx) => (
+              //   <PostCard key={idx} {...post} />
+              <LeetCodeCard key={idx} {...lc} />
             ))}
           </div>
         </div>
