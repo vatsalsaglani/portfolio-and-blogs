@@ -20,6 +20,9 @@ export default function Home({ posts }) {
   // console.log("POSTS: ", posts);
   return (
     <div className="bg-darkbg min-h-screen">
+      <Head>
+        <title>Vatsal Saglani</title>
+      </Head>
       <div className="bg-darkbg mx-auto md:py-8 md:px-0 flex flex-col md:justify-start md:items-center">
         <Navigation />
       </div>
