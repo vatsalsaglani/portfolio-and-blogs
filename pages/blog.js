@@ -52,7 +52,7 @@ export default function Blog({ posts }) {
         </div>
         <div className="p-16 md:p-12 flex flex-col md:block items-center justify-center mx-auto w-full md:w-[70%]">
           <Search value={searchText} setter={onChangeSearch} />
-          <div className="space-y-8 mt-8">
+          <div className="space-y-8 mt-12">
             {filtered_posts.map((post, idx) => (
               <PostCard key={idx} {...post} />
             ))}

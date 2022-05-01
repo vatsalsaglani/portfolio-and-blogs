@@ -59,7 +59,7 @@ export default function LeetCode({ leetcodes }) {
         </div>
         <div className="p-16 md:p-12 flex flex-col md:block items-center justify-center mx-auto w-full md:w-[70%]">
           <Search value={searchText} setter={onChangeSearch} />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-12">
             {filtered_lc.map((lc, idx) => (
               //   <PostCard key={idx} {...post} />
               <LeetCodeCard key={idx} {...lc} />
