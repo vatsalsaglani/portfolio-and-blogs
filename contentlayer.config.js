@@ -54,6 +54,25 @@ export const Leetcode = defineDocumentType(() => ({
   },
 }));
 
+export const OtherPage = defineDocumentType(() => ({
+  name: "OtherPages",
+  filePathPattern: "*.mdx",
+  contentType: "mdx",
+  fields: {
+    title: {
+      type: "string",
+      description: "Title of page",
+      required: true,
+    },
+  },
+  computedFields: {
+    slug: {
+      type: "string",
+      resolve: (doc) => doc._raw.sourceFileName.replace(/\.mdx$/, ""),
+    },
+  },
+}));
+
 export const Post = defineDocumentType(() => ({
   name: "Post",
   filePathPattern: `posts/*.mdx`,
@@ -130,6 +149,7 @@ export default makeSource({
   documentTypes: [
     Post,
     Leetcode,
+    OtherPage,
     // Project
   ],
   mdx: {
