@@ -52,7 +52,7 @@ const PostLayout = ({ post }) => {
       </Head>
 
       <div className="block">
-        <div className="fixed z-10 w-full h-2 bg-gradient-to-r from-sky-400 to-green-200"></div>
+        <div className="fixed z-10 w-full h-2 bg-gradient-to-r from-sky-400 to-green-200 animate-text"></div>
         <Post post={post} />
       </div>
     </div>
