@@ -34,11 +34,14 @@ const Post = ({ post }) => {
             </Link>
           </div>
           <div className=" mb-6">
-            <h1 className="text-3xl font-bold text-sky-50 mb-1">
+            <h1 className="text-3xl font-bold text-sky-50 mb-1 font-Work">
               {post.title}
             </h1>
             <div className="flex flex-row justify-between items-center">
-              <time dateTime={post.date} className="text-sm text-gray-400">
+              <time
+                dateTime={post.date}
+                className="text-sm text-gray-400 font-Work"
+              >
                 {format(parseISO(post.date), "LLLL d, yyyy")}
               </time>
 
@@ -56,7 +59,7 @@ const Post = ({ post }) => {
               />
             </div>
           ) : null}
-          <div className="prose prose-invert my-2">
+          <div className="prose prose-invert my-2 font-Work">
             <MDXContent components={MDXComponents} />
           </div>
         </article>
