@@ -19,15 +19,20 @@ const PostCard = (post) => {
           <div className="flex items-start justify-between ">
             <h2 className="text-lg md:text-xl font-bold">
               <Link href={post.url}>
-                <a className="text-blue-50 hover:text-blue-400">{post.title}</a>
+                <a className="text-blue-50 hover:text-blue-400 font-Work">
+                  {post.title}
+                </a>
               </Link>
             </h2>
-            <time dateTime={post.date} className=" text-sm text-gray-400">
+            <time
+              dateTime={post.date}
+              className=" text-sm text-gray-400 font-Work"
+            >
               {format(parseISO(post.date), "LLLL d, yyyy")}
             </time>
           </div>
           <div className="text-blue-200 my-1">{post.desc}</div>
-          <div className="text-blue-200 flex flex-row-reverse justify-between">
+          <div className="text-blue-200 flex flex-row-reverse justify-between font-Work">
             {post.readingTime.text}
             <div className="text-sky-100 flex flex-row space-x-2">
               <svg
@@ -49,7 +54,7 @@ const PostCard = (post) => {
                   d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                 />
               </svg>
-              <div className="text-gray-400">{views}</div>
+              <div className="text-gray-400 font-Work">{views}</div>
             </div>
           </div>
         </div>
