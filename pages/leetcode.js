@@ -53,7 +53,53 @@ export default function LeetCode({ leetcodes }) {
             content="initial-scale=1.0, width=device-width"
             key="viewport"
           />
+          <meta
+            name="viewport"
+            content="initial-scale=1.0, width=device-width"
+            key="viewport"
+          />
+          <meta
+            name="description"
+            content={
+              "Vatsal Saglani's space to post his leetcode solutions on the internet."
+            }
+          />
+          <meta
+            property="og:title"
+            content={
+              "Vatsal Saglani's space to post his leetcode solutions on the internet"
+            }
+          />
+          <meta
+            property="og:description"
+            content={
+              "Vatsal Saglani's space to post his leetcode solutions on the internet."
+            }
+          />
+          <meta
+            property="og:url"
+            content={"https://www.vatsalsaglani.dev/leetcode"}
+          />
+          <meta property="og:type" content={"article"} />
+          <meta property="og:locale" content="en_US" />
+
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:site" content="@saglanivatsal" />
+          <meta name="twitter:creator" content="@saglanivatsal" />
+          <meta
+            name="twitter:title"
+            content={
+              "Vatsal Saglani's space to post his leetcode solutions on the internet"
+            }
+          />
+          <meta
+            name="twitter:description"
+            content={
+              "Vatsal Saglani's space to post his leetcode solutions on the internet."
+            }
+          />
         </Head>
+
         <div className="mx-auto md:pt-8 md:px-0 flex flex-col md:justify-start md:items-center">
           <Navigation />
         </div>

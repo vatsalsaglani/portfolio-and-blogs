@@ -26,6 +26,36 @@ export default function Contact({ contact }) {
             content="initial-scale=1.0, width=device-width"
             key="viewport"
           />
+          <meta
+            name="description"
+            content={"Ways to contact Vatsal Saglani."}
+          />
+          <meta
+            property="og:title"
+            content={"Ways to contact Vatsal Saglani"}
+          />
+          <meta
+            property="og:description"
+            content={"Ways to contact Vatsal Saglani."}
+          />
+          <meta
+            property="og:url"
+            content={"https://www.vatsalsaglani.dev/contact"}
+          />
+          <meta property="og:type" content={"article"} />
+          <meta property="og:locale" content="en_US" />
+
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:site" content="@saglanivatsal" />
+          <meta name="twitter:creator" content="@saglanivatsal" />
+          <meta
+            name="twitter:title"
+            content={"Ways to contact Vatsal Saglani"}
+          />
+          <meta
+            name="twitter:description"
+            content={"Ways to contact Vatsal Saglani."}
+          />
         </Head>
         <div className="mx-auto md:pt-8 md:px-0 flex flex-col md:justify-start md:items-center">
           <Navigation />
