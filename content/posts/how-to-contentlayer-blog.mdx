@@ -1,0 +1,356 @@
+---
+title: Creating a blog using Contentlayer
+date: 2022-05-02
+desc: Easily create a blog with NextJS, Markdown, and TailwindCSS
+thumbnail: https://images.pexels.com/photos/943096/pexels-photo-943096.jpeg
+---
+
+## Table of Contents 📚
+
+1. [Introduction](/posts/how-to-contentlayer-blog#introduction)
+2. [Create Next App](/posts/how-to-contentlayer-blog#create-next-app)
+3. [Install Tailwind](/posts/how-to-contentlayer-blog#install-tailwind)
+   1. [Configure Tailwind](/posts/how-to-contentlayer-blog#configure-tailwind)
+   2. [Tailwind Typography](/posts/how-to-contentlayer-blog#tailwind-typography)
+4. [Install Contentlayer](/posts/how-to-contentlayer-blog#install-contentlayer)
+5. [Update NextJS Configs](/posts/how-to-contentlayer-blog#update-nextjs-configs)
+6. [Blogs Folder](/posts/how-to-contentlayer-blog#blogs-folder)
+7. [Create Contentlayer Configs](/posts/how-to-contentlayer-blog#create-contentlayer-configs)
+   1. [Define Document Type](/posts/how-to-contentlayer-blog#define-document-type)
+   2. [JS Config JSON](/posts/how-to-contentlayer-blog#js-config-json)
+8. [Listing Blogs](/posts/how-to-contentlayer-blog#listing-blogs)
+9. [Displaying Markdown Blog](/posts/how-to-contentlayer-blog#displaying-markdown-blog)
+10. [Conclusion](/posts/how-to-contentlayer-blog#conclusion)
+
+## Introduction
+
+In this article we will take a look at one of the simplest ways to create your personal blog using NextJS, Markdown (Contentlayer), and TailwindCSS.
+
+_So let's get started_
+
+## Create Next App
+
+You can use the following commands to create a **NextJS** application
+
+```bash
+npx create-next-app my-blog
+# or
+create-next-app my-blog
+```
+
+## Install Tailwind
+
+In this blog we won't go through the process of styling your blog but we will be using _[@tailwind/typography](https://github.com/tailwindlabs/tailwindcss-typography)_ out of the box to make the blog content look good to the eyes.
+
+You can directly follow the [Install TailwindCSS with Next.js](https://tailwindcss.com/docs/guides/nextjs) guide or follow the steps below. The choice is yours
+
+_Go inside the <InlineCode>my-blog</InlineCode> folder and execute the following commands_
+
+```bash
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+```
+
+### Configure Tailwind
+
+A file named <InlineCode>tailwind.config.js</InlineCode> will be created inside the <InlineCode>my-blog</InlineCode> folder. Copy the following code below and paste it inside the file
+
+```js:my-blog/tailwind.config.js
+module.exports = {
+  content: [
+    "./pages/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
+
+Now let's add the <InlineCode>@tailwind</InlineCode> directive to the top of the <InlineCode>styles/global.css</InlineCode> file.
+
+```css:my-blog/styles/global.css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* keep whatever is there */
+```
+
+### Tailwind Typography
+
+Let's add Tailwind Typography to the blog to make the blog content look clean
+
+_Install the <InlineCode>@tailwindcss/typography</InlineCode> as a \_dev_ dependency\_
+
+```bash
+npm install -D @tailwindcss/typography
+```
+
+We need to add a require statement inside the plugins array in <InlineCode>tailwind.config.js</InlineCode>.
+
+```js:my-blog/tailwind.config.js
+module.exports = {
+  content: [
+    "./pages/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [require("@tailwindcss/typography")],
+}
+```
+
+## Install Contentlayer
+
+Install the following dependencies to add <InlineCode>Contentlayer</InlineCode> to the project
+
+```bash
+npm install contentlayer next-contentlayer
+```
+
+## Update NextJS Configs
+
+To allow <InlineCode>Contentlayer</InlineCode> to parse the _<InlineCode>.mdx</InlineCode>_ we need to add a few configs to the the <InlineCode>next.config.js</InlineCode> file.
+
+Update the <InlineCode>next.config.js</InlineCode> file with the code below
+
+```js:my-blog/next.config.js
+const { withContentlayer } = require("next-contentlayer");
+
+module.exports = withContentlayer({
+  reactStrictMode: true,
+});
+```
+
+## Blogs Folder
+
+Let's create some folders to store the <InlineCode>.mdx</InlineCode> files. Create a <InlineCode>content</InlineCode> folder at the base of the application i.e. <InlineCode>my-blog/content</InlineCode>.
+
+- Add a <InlineCode>blogs</InlineCode> folder inside the <InlineCode>content</InlineCode> folder.
+- Add a <InlineCode>change-me.mdx</InlineCode> file inside the <InlineCode>blogs</InlineCode> folder.
+- Add the following content to the <InlineCode>change-me.mdx</InlineCode> file.
+
+```md:my-blog/content/blogs/change-me.mdx
+---
+title: Lorem Ipsum
+date: 2021-12-24
+desc: Lorem Ipsum excepteur consequat nostrud esse esse fugiat dolore. Reprehenderit occaecat exercitation non cupidatat in eiusmod laborum ex eufugiat aute culpa pariatur. Irure elit proident consequat veniam minim ipsum ex pariatu
+thumbnail: https://images.pexels.com/photos/8347501/pexels-photo-8347501.jpeg
+---
+
+## Table of Contents 📑
+
+1. Content 1
+   1. One
+   2. Two
+2. Content 2
+
+Ullamco et nostrud magna commodo nostrud occaecat quis pariatur id ipsum. Ipsum
+consequat enim id excepteur consequat nostrud esse esse fugiat dolore.
+Reprehenderit occaecat exercitation non cupidatat in eiusmod laborum ex eu
+fugiat aute culpa pariatur. Irure elit proident consequat veniam minim ipsum ex
+pariatur.
+
+Mollit nisi cillum exercitation minim officia velit laborum non Lorem
+adipisicing dolore. Labore commodo consectetur commodo velit adipisicing irure
+dolore dolor reprehenderit aliquip. Reprehenderit cillum mollit eiusmod
+excepteur elit ipsum aute pariatur in. Cupidatat ex culpa velit culpa ad non
+labore exercitation irure laborum.
+```
+
+## Create Contentlayer Configs
+
+We need to create document types for every **categroy** of post we want to publish. Let's assume we have two categories **_blogs_** and **_projects_**, the layout for showing the content is different for both so we create two different document types for such cases.
+
+In this article we are only showing blogs we will create a single document type called <InlineCode>Blog</InlineCode>
+
+### Define Document Type
+
+Create <InlineCode>contentlayer.config.js</InlineCode> at the base of the project and add the following code
+
+```js:my-blog/contentlayer.config.js
+import { defineDocumentType, makeSource } from "contentlayer/source-files";
+
+export const Blog = defineDocumentType(() => ({
+  name: "Blog",
+  filePathPattern: `blogs/*.mdx`,
+  contentType: "mdx",
+  fields: {
+    title: {
+      type: "string",
+      description: "The title of the blog",
+      required: true,
+    },
+    date: {
+      type: "date",
+      description: "The date of the blog",
+      required: true,
+    },
+    desc: {
+      type: "string",
+      description: "The description of the blog",
+      required: true,
+    },
+    thumbnail: {
+      type: "string",
+      description: "Link to Thumbnail Image",
+      required: false,
+    },
+  },
+  computedFields: {
+    readingTime: { type: "json", resolve: (doc) => readingTime(doc.body.raw) },
+    wordCount: {
+      type: "number",
+      resolve: (doc) => doc.body.raw.split(/\s+/gu).length,
+    },
+    url: {
+      type: "string",
+      resolve: (blog) => `/${blog._raw.flattenedPath}`,
+    },
+    slug: {
+      type: "string",
+      resolve: (doc) => doc._raw.sourceFileName.replace(/\.mdx$/, ""),
+    },
+  },
+}));
+
+
+export default makeSource({
+  contentDirPath: "content",
+  documentTypes: [Blog],
+  mdx: {},
+});
+```
+
+### JS Config JSON
+
+**Contentlayer** generates the _markdown_ code inside the <InlineCode>.contentlayer</InlineCode> folder and we will be getting the metadata and the content of the blogs from the <InlineCode>.contentlayer/generated</InlineCode>
+
+Now to directly import _blogs_ content and metadata directly from the <InlineCode>generated</InlineCode> we add a path alias for it to the <InlineCode>jsconfig.json</InlineCode> to make imports easier
+
+Let's create a <InlineCode>jsconfig.json</InlineCode> file at the base of the project and add the following code.
+
+```js:my-blog/jsconfig.json
+{
+    "compilerOptions": {
+      "baseUrl": ".",
+      "paths": {
+        "contentlayer/generated": ["./.contentlayer/generated"]
+      }
+    },
+    "include": ["next-env.d.ts", "**/*.tsx", "**/*.ts", ".contentlayer/generated"]
+}
+```
+
+## Listing Blogs
+
+Now that we have <InlineCode>change-me.mdx</InlineCode> inside the <InlineCode>my-blog/content/blogs</InlineCode> folder we can have list of all the blogs inside the folder.
+
+Go to the <InlineCode>index.js</InlineCode> inside the <InlineCode>pages/</InlineCode> folder and change the content of the file as follows
+
+```js:my-blog/pages/index.js
+import Head from "next/head";
+import Link from "next/link";
+
+import { allBlogs } from "contentlayer/generated";
+
+export async function getStaticProps() {
+    const blogs = allBlogs;
+
+    return { props: { blogs } }
+}
+
+export default function Home({ blogs }) {
+    return (
+        <div>
+            <div className="min-h-screen min-w-full flex flex-col justify-center items-center" >
+                <h2>My Blog</h2>
+                <div className="space-y-4 flex flex-col justify-center items-center" >
+                    {
+                        blogs.map((blog, index) => (
+                            <Link key={index} href={blog.url}>
+                                <a>{blog.title}</a>
+                            </Link>
+                            ))
+                    }
+                </div>
+            </div>
+        </div>
+    )
+}
+```
+
+Now go to the terminal inside the <InlineCode>my-blog</InlineCode> project and run the server in the <InlineCode>dev</InlineCode> mode.
+
+```bash
+npm run dev
+```
+
+Now you can go to **_http://localhost:3000_** and see the list of Blogs available
+
+_Let's try and show the content inside the blog in a new page_
+
+## Displaying Markdown Blog
+
+Now that we have a page to list all the blogs present inside the <InlineCode>my-blog/content/blogs</InlineCode> folder we can create a dynamic route which shows the content inside a particular blog selected
+
+Create a <InlineCode>blogs</InlineCode> folder inside the <InlineCode>pages</InlineCode> folder. Then create the <InlineCode>[slug].js</InlineCode> inside the <InlineCode>blogs</InlineCode> folder and add the following code
+
+```js:my-blog/pages/blogs/[slug].js
+import Head from "next/head";
+import { useMDXComponent } from "next-contentlayer/hooks";
+import Image from "next/image";
+
+import { allBlogs } from "contentlayer/generated";
+
+export async function getStaticPaths() {
+    const paths = allBlogs.map((post) => post.url);
+
+    return {
+        paths,
+        fallback: false
+    }
+}
+
+export async function getStaticProps({ params }) {
+    const blog = allBlogs.find((blog) => blog._raw.flattenedPath === `blogs/${params.slug}`);
+
+    return {
+        props: {
+            blog,
+        }
+    }
+}
+
+export default function BlogPost({ blog }) {
+    const MDXContent = useMDXComponent(blog.body.code);
+    return (
+        <div className="max-w-2xl mx-auto py-16 scroll-smooth">
+            <div className="text-2xl font-bold" >{blog.title}</div>
+            {blog?.thumbnail ? (
+                <div>
+                <Image
+                    src={post.thumbnail}
+                    width={1501 / 2}
+                    height={712 / 2}
+                    priority
+                    className="rounded-lg shadow-2xl"
+                />
+                </div>
+            ) : null}
+            <div className="prose my-2">
+                <MDXContent />
+            </div>
+        </div>
+    )
+}
+```
+
+Hopefully, this should show the markdown content 🤞
+
+## Conclusion
+
+In this article we saw how we can publish a blog using mark and how **_Contentlayer_** makes it very easy. Plus the customisation using **_TailwindCSS_** are really good
