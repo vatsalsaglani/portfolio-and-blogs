@@ -18,7 +18,7 @@ export const CustomLink = (props) => {
   if (isInternal) {
     return (
       <Link href={href}>
-        <a className="text-sky-500 hover:text-sky-800" {...props}>
+        <a className="text-sky-500 hover:text-sky-800 font-Work" {...props}>
           {props.children}
         </a>
       </Link>
@@ -27,7 +27,7 @@ export const CustomLink = (props) => {
 
   return (
     <a
-      className="text-sky-500 hover:text-sky-800"
+      className="text-sky-500 hover:text-sky-800 font-Work"
       target={"_blank"}
       rel={"noopener noreferrer"}
       {...props}
@@ -44,7 +44,12 @@ export const RoundedImage = (props) => {
 };
 
 export const InlineCode = (props) => {
-  return <span {...props} className={`p-1 bg-yellow-200/70 rounded-md`} />;
+  return (
+    <span
+      {...props}
+      className={`p-1 bg-yellow-200/70 rounded-md text-indigo-500 font-Work`}
+    />
+  );
 };
 
 const MDXComponents = {
