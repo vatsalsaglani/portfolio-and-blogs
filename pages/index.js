@@ -42,6 +42,10 @@ export default function Home({ posts }) {
             "Vatsal Saglani's space on the internet. Here, he writes blogs related to Deep Learning, Machine Learning, NLP, Computer Vision, React, Backend, and Databases. He also posts his Leetcode solutions and makes himself look like a noob."
           }
         />
+        <meta
+          property="og:image"
+          content="https://vs-bucket-allthings.s3.us-east-2.amazonaws.com/IMG_0128.PNG"
+        />
         <meta property="og:url" content={"https://www.vatsalsaglani.dev"} />
         <meta property="og:type" content={"article"} />
         <meta property="og:locale" content="en_US" />
@@ -52,6 +56,10 @@ export default function Home({ posts }) {
         <meta
           name="twitter:title"
           content={"Vatsal Saglani's space on the internet"}
+        />
+        <meta
+          name="twitter:image"
+          content="https://vs-bucket-allthings.s3.us-east-2.amazonaws.com/IMG_0128.PNG"
         />
         <meta
           name="twitter:description"

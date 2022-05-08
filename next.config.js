@@ -8,6 +8,7 @@ module.exports = withContentlayer({
       "source.unsplash.com",
       "images.pexels.com",
       "i.imgur.com",
+      "vs-bucket-allthings.s3.us-east-2.amazonaws.com",
     ],
   },
 });
