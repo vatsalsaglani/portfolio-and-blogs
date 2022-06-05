@@ -1,0 +1,273 @@
+---
+title: Serverless AWS Lambda ➕ DynamoDB ➕ FastAPI ➕ Github Actions
+date: 2022-05-02
+desc: Part 1 - Deploying FastAPI application on AWS Lambda
+thumbnail: https://images.pexels.com/photos/1148820/pexels-photo-1148820.jpeg
+---
+
+## Table of Contents 📚
+
+1. [**Introduction**](/posts/serverless-part-1#introduction)
+2. [**AWS Serverless Application Model (AWS SAM)**](/posts/serverless-part-1#aws-serverless-application-model-aws-sam)
+   1. [**Requirements**](/posts/serverless-part-1#requirements)
+3. [**Creating Function**](/posts/serverless-part-1#creating-function)
+4. [**Adding Dependencies**](/posts/serverless-part-1#adding-dependencies)
+5. [**Writing APIs using FastAPI**](/posts/serverless-part-1#writing-apis-using-fastapi)
+6. [**Creating Handler using Mangum**](/posts/serverless-part-1#creating-handler-using-mangum)
+7. [**Updating Cloudformation Template**](/posts/serverless-part-1#updating-cloudformation-template)
+8. [**Build & Deploy**](/posts/serverless-part-1#build--deploy)
+9. [**Conclusion**](/posts/serverless-part-1#conclusion)
+
+## Introduction
+
+In the _Part 1_ of this blog we will go through the steps of setting up [_AWS SAM_](https://docs.aws.amazon.com/serverless-application-model/index.html), creating a **Lambda**, and adding _FastAPI_ API endpoints.
+
+You might have heard a lot about _serverless_ functions and their advantages so, in this blog we won't be going into the explanation of, _what are serverless functions?_ or _where and when to use them?_.
+
+Is short, a _serverless_ architecture or _serverless_ function can be use when one just wants to focus into the application and doesn't want to get into the complexities of setting and configuring a server.
+
+In more layman terms, a _serverless_ architecture can be compared to **Service Apartments/Paying Guests** in real world. When people want place which is _safe_, _has all the basic necessities_, _has multiple accomodation options_, and _provides freedom to add some customisations_ they look for **Service Apartments/Paying Guests**. Similarly, in case of application development, if you don't want to deal with setting up servers, securing and configuring them, then serverless is the best option.
+
+## AWS Serverless Application Model (AWS SAM)
+
+There are a lot of ways you can create a serverless _Lambda_ function on **AWS**. A _Docker_ container with an <InlineCode>lambda_handler</InlineCode> pushed to AWS ECR can be used with Lambda.
+
+Or, zipping the requirements and uploading those to _AWS S3_ and then building a _Lambda_ function via the console can also work.
+
+But AWS SAM is the best approach to have continuous integration and deployment. **AWS SAM** provides template specification to define serverless application and a CLI (command line interface) tool to build and deploy.
+
+Moreover, we can integrate **Github Actions** using with **AWS SAM** and have a continuous development and deployment pipeline
+
+### Requirements
+
+To follow along with this blog you need to install and configure the following
+
+- [**AWS CLI**](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html)
+- [**AWS SAM**](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
+- [**VS Code AWS Toolkit Extension**](https://docs.aws.amazon.com/toolkit-for-vscode/latest/userguide/setup-toolkit.html#setup-prereq)
+
+## Creating Function
+
+1. Open a new _VS Code editor windown_ and based on your operating system use <InlineCode>cmd + shift + p</InlineCode> or <InlineCode>ctrl + shift + p</InlineCode> and search for **"AWS: Create Lambda SAM Application"** and select it
+
+<Image
+  src="https://vs-bucket-allthings.s3.us-east-2.amazonaws.com/serverless-blog-series/Screenshot%202022-06-05%20at%205.18.46%20PM.png"
+  width={1501 / 2}
+  height={712 / 2}
+  priority
+/>
+
+2. Select **Python3.7** or any python version you want
+
+<Image
+  src="https://vs-bucket-allthings.s3.us-east-2.amazonaws.com/serverless-blog-series/Screenshot%202022-06-05%20at%205.19.38%20PM.png"
+  width={1501 / 2}
+  height={712 / 2}
+  priority
+/>
+
+3. Select **AWS SAM Hello World** as the application template
+
+<Image
+  src="https://vs-bucket-allthings.s3.us-east-2.amazonaws.com/serverless-blog-series/Screenshot%202022-06-05%20at%205.20.09%20PM.png"
+  width={1501 / 2}
+  height={712 / 2}
+  priority
+/>
+
+4. Name you application and save it inside a folder and export the folder to VS Code
+
+<Image
+  src="https://vs-bucket-allthings.s3.us-east-2.amazonaws.com/serverless-blog-series/Screenshot%202022-06-05%20at%205.21.18%20PM.png"
+  width={1501 / 2}
+  height={712 / 2}
+  priority
+/>
+
+Once the folder is added to the current workspace the structure will look similar to the one in the image below
+
+<Image
+  src="https://vs-bucket-allthings.s3.us-east-2.amazonaws.com/serverless-blog-series/Screenshot%202022-06-05%20at%205.22.03%20PM.png"
+  width={1501 / 2}
+  height={712 / 2}
+  priority
+/>
+
+## Adding Dependencies
+
+To create APIs or endpoints using FastAPI we first need to add the <InlineCode>fastapi</InlineCode> inside the <InlineCode>requirements.txt</InlineCode> file
+
+```txt:application_name/hello_world/requirements.txt
+requests
+fastapi
+```
+
+## Writing APIs using FastAPI
+
+Let's create some endpoints. Open the <InlineCode>app.py</InlineCode> file and comment out the <InlineCode>lambda_handler</InlineCode> function and create some endpoints as below
+
+```py:application_name/hello_world/app.py
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/")
+def read_root():
+    return {"Hello": "World", "ok": True}
+
+@app.get("/hello")
+def hello_mount():
+    return {"message": "All is well", "ok": True}
+
+@app.get("/items/{item_id}")
+def read_item(item_id: int, q: str = None):
+    return {"item_id": item_id, "q": q, "ok": True}
+
+```
+
+## Creating Handler using Mangum
+
+Now to handle the function invocation or various events via the API Gateway or the Load Balancer we use [**Mangum**](https://pypi.org/project/mangum/).
+
+**Mangum** supports ASGI application frameworks like Starlette, FastAPI, and Quart. To know more about **Mangum** you can visit [this page](https://github.com/jordaneremieff/mangum)
+
+Add **mangum** to our <InlineCode>requirements.txt</InlineCode>
+
+```txt:application_name/hello_world/requirements.txt
+requests
+fastapi
+mangum
+```
+
+Now let's create the <InlineCode>lambda_handler</InlineCode> inside the <InlineCode>app.py</InlineCode> file
+
+```py:application_name/hello_world/app.py
+from fastapi import FastAPI
+from mangum import Mangum
+
+app = FastAPI()
+
+@app.get("/")
+def read_root():
+    return {"Hello": "World", "ok": True}
+
+@app.get("/hello")
+def hello_mount():
+    return {"message": "All is well", "ok": True}
+
+@app.get("/items/{item_id}")
+def read_item(item_id: int, q: str = None):
+    return {"item_id": item_id, "q": q, "ok": True}
+
+
+lambda_handler = Mangum(app = app, lifespan="off")
+```
+
+## Updating Cloudformation Template
+
+We need to allow access to all the endpoints we have created above or else we might get <InlineCode>500</InlineCode> error code in response.
+
+To do this add open the <InlineCode>template.yaml</InlineCode> file and replace the content under <InlineCode>Events</InlineCode> with the following
+
+```yaml
+Events:
+  HelloWorld:
+    Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+    Properties:
+    Path: /{proxy+}
+    Method: any
+  Http:
+    Type: Api
+    Properties:
+    Path: "/"
+    Method: Any
+```
+
+After this update the template file should look something like below
+
+```yaml:application_name/template.yaml
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  hello-world-lambda-python3.7
+
+  Sample SAM Template for hello-world-lambda-python3.7
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  HelloWorldFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: hello_world/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      Events:
+        HelloWorld:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /{proxy+}
+            Method: any
+        Http:
+          Type: Api
+          Properties:
+            Path: "/"
+            Method: any
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  HelloWorldApi:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+  HelloWorldFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt HelloWorldFunction.Arn
+  HelloWorldFunctionIamRole:
+    Description: "Implicit IAM Role created for Hello World function"
+    Value: !GetAtt HelloWorldFunctionRole.Arn
+```
+
+## Build & Deploy
+
+Let's build the function and deploy it. To build the function open the terminal and move into the <InlineCode>application_name</InlineCode>.
+
+Note: <InlineCode>application_name</InlineCode> referes to the name of the application you gave at the start.
+
+Run the following commands
+
+1. Build the application
+
+```bash
+sam build
+```
+
+Once the build process is complete you will see <InlineCode>.aws-sam</InlineCode> folder inside your function. This function contains all the packages and files which will be required to run the application
+
+2. Deploy the Application
+
+```bash
+sam deploy --region <region_name> \
+           --stack-name <name-the-deployment-stack> \
+           --resolve-s3 --capabilities CAPABILITY_IAM
+```
+
+Let's say we want to deploy it to the us-east-2 region and we name the cloudformation stack as **lambda-fastapi-deploy** our command will be
+
+```bash
+sam deploy --region us-east-2 \
+           --stack-name lambda-fastapi-deploy \
+           --resolve-s3 --capabilities CAPABILITY_IAM
+```
+
+Once Cloudfront finishes deploying the application to Lambda it will output the endpoint to access all the APIs in the terminal window.
+
+## Conclusion
+
+This blog was more of a discovery and setup kind wherein we went through process of creating APIs using **<u>FastAPI</u>** and wrapping it into an adapter called **<u>Mangum</u>** and then deploying it as a Lambda using the _Cloudformation_ template.
+
+In the next part we will create few tables inside **<u>DynamoDB</u>** and try to access it using the _Lambda_ function we created here
