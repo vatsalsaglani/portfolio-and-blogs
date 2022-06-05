@@ -1,0 +1,581 @@
+---
+title: Serverless AWS Lambda ➕ DynamoDB ➕ FastAPI ➕ Github Actions
+date: 2022-06-05
+desc: Part 2 - DynamoDB with AWS Lambda and FastAPI
+thumbnail: https://images.pexels.com/photos/1148820/pexels-photo-1148820.jpeg
+---
+
+## Table of Contents 📚
+
+1. [**Introduction**](/posts/serverless-part-2#introduction)
+2. [**Creating Tables**](/posts/serverless-part-2#creating-tables)
+3. [**DynamoDB Code Examples**](/posts/serverless-part-2#dynamodb-code-examples)
+   1. [**Put Item**](/posts/serverless-part-2#put-item)
+   2. [**Get Item**](/posts/serverless-part-2#get-item)
+   3. [**Update Item**](/posts/serverless-part-2#update-item)
+4. [**Updating Dependencies**](/posts/serverless-part-2#updating-dependencies)
+5. [**APIs to interact with DynamoDB**](/posts/serverless-part-2#apis-to-interact-with-dynamodb)
+6. [**Update Cloudformation Template**](/posts/serverless-part-2#update-cloudformation-template)
+7. [**Build & Deploy**](/posts/serverless-part-2#build--deploy)
+8. [**Configure Github Actions**](/posts/serverless-part-2#configure-github-actions)
+9. [**Conclusion**](/posts/serverless-part-2#conclusion)
+
+## Introduction
+
+In [**Part 1**](https://www.vatsalsaglani.dev/posts/serverless-part-1), we went through a hands-on guide on how to use **AWS Lambda** to deploy web application built using **FastAPI**.
+
+In this blog, we will create two tables using **AWS DynamoDB** and develop API endpoints to create and get data from the tables.
+
+## Creating Tables
+
+We will be creating two tables **ArxivUser** and **ArxivPaper** from the _DynamoDB_ console. We will have the following keys;
+
+<Image
+  src="https://vs-bucket-allthings.s3.us-east-2.amazonaws.com/serverless-blog-series/user-paper-db-design.png"
+  width={1501 / 2}
+  height={712 / 2}
+  priority
+/>
+
+1. Go to the DynamoDB console
+
+<Image
+  src="https://vs-bucket-allthings.s3.us-east-2.amazonaws.com/serverless-blog-series/dynamodb-create-table.png"
+  width={1501 / 2}
+  height={712 / 2}
+  priority
+/>
+
+2. Create ArxivUser table and keep <InlineCode>user_id</InlineCode> as the _partition key_
+
+<Image
+  src="https://vs-bucket-allthings.s3.us-east-2.amazonaws.com/serverless-blog-series/arxivuser-table.png"
+  width={1501 / 2}
+  height={712 / 2}
+  priority
+/>
+
+3. Create ArxivPaper table and keep <InlineCode>paper_id</InlineCode> as the _partition key_
+
+<Image
+  src="https://vs-bucket-allthings.s3.us-east-2.amazonaws.com/serverless-blog-series/arxivpaper-table.png"
+  width={1501 / 2}
+  height={712 / 2}
+  priority
+/>
+
+## DynamoDB Code Examples
+
+Before creating the APIs lets look at a few code examples on how to add, update, and get data from the tables. We will be using <InlineCode>boto3</InlineCode> library to access the tables
+
+Install <InlineCode>boto3</InlineCode> using <InlineCode>pip install boto3</InlineCode>
+
+
+```py
+import boto3
+
+dynamo_resource = boto3.resource(
+    "dynamodb",
+    aws_access_key_id=<your_aws_access_key_id>,
+    aws_secret_access_key=<your_aws_access_key>,
+    region_name=<your_region_name>)
+
+user_table = dynamo_resource.Table("ArxivUser")
+
+paper_table = dynamo_resource.Table("ArxivPaper")
+```
+
+### Put Item
+
+- Adding data to **ArxivUser** table
+```py
+from uuid import uuid4
+
+user = dict(
+    user_id = str(uuid4()),
+    username = "user_1234",
+    first_name = "some",
+    last_name = "name",
+    papers = []
+)
+
+user_table.put_item(Item = user)
+```
+
+- Adding data to the **ArxivPaper** table
+```py
+paper = dict(
+    paper_id = str(uuid4()),
+    paper_name = "Some Paper Name",
+    paper_summary = "Paper Summary",
+    arxiv_details = dict(pdf = "https://google.com", url = "https://google.com")
+)
+
+paper_table.put_item(Item = paper)
+```
+
+### Get Item
+
+- Get Item from **ArxivUser** table
+```py
+user_table.get_item(Key={"user_id": "query user id"})
+```
+
+- Get Item from **ArxivPaper** table
+```py
+paper_table.get_item(Key={"paper_id": "query paper id"})
+```
+
+### Update Item
+
+- Adding <InlineCode>paper_id</InlineCode> to the **ArxivUser** table <InlineCode>papers</InlineCode> list
+```py
+user_table.update_item(
+    Key = {"user_id": "query user id"},
+    UpdateExpression = "SET papers = list_append(papers, :paper_id)",
+    ExpressionAttributeValues = {
+        ":paper_id": ["paper id"]
+    },
+    ReturnValues = "UPDATED_NEW"
+)
+```
+
+- Updating <InlineCode>pdf</InlineCode> key in the **ArxivPaper** table
+```py
+paper_table.update_item(
+    Key = {"paper_id": "query paper id"},
+    UpdateExpression = "SET #a_d.#url = :url_val",
+    ExpressionAttributeNames = {
+        "#a_d": "arxiv_details",
+        "#url": "pdf"
+    },
+    ExpressionAttributeValues = {
+        ":url_val": "https://medium.co"
+    },
+    ReturnValues = "UPDATED_NEW"
+)
+```
+
+## Updating Dependencies
+
+We need to add <InlineCode>boto3</InlineCode> library to the <InlineCode>requirements.text</InlineCode>
+
+```py:application_name/hello_world/requirements.txt
+requests
+fastapi
+mangum
+boto3
+```
+
+## APIs to interact with DynamoDB
+
+We will add the following APIs to the <InlineCode>app.py</InlineCode> file.
+
+- Add the new imports and tables
+
+
+```py:application_name/hello_world/app.py
+from pydantic import BaseModel
+import boto3
+from boto3.dynamodb.conditions import Key, Attr
+
+dynamo_resource = boto3.resource("dynamodb")
+
+print(list(dynamo_resource.tables.all()))
+
+user_table = dynamo_resource.Table("ArxivUser")
+paper_table = dynamo_resource.Table("ArxivPaper")
+```
+
+
+- Post Models
+
+
+```py:application_name/hello_world/app.py
+class UserModel(BaseModel):
+    user_id: str
+    username: Union[str, None] = None
+    first_name: Union[str, None] = None
+    last_name: Union[str, None] = None
+    papers: Union[list, None] = []
+
+
+class PaperModel(BaseModel):
+    paper_id: str
+    paper_summary: Union[str, None] = None
+    paper_name: Union[str, None] = None
+    arxiv_details: dict = {"pdf": "", "url": ""}
+    user_id: str
+```
+
+
+- API to add new user
+
+
+```py:application_name/hello_world/app.py
+@app.post("/api/add_user")
+def create_user(User: UserModel):
+    user = dict(user_id=User.user_id,
+                username=User.username,
+                first_name=User.first_name,
+                last_name=User.last_name,
+                papers=User.papers if User.papers else [])
+
+    resp = user_table.put_item(Item=user)
+
+    if resp["ResponseMetadata"]["HTTPStatusCode"] == 200:
+        return {"ok": True}
+
+    return {"ok": False}
+```
+
+
+- API to add paper
+
+
+```py:application_name/hello_world/app.py
+@app.post("/api/add_paper")
+def create_paper(Paper: PaperModel):
+    arxiv_details = Paper.arxiv_details
+    paper = dict(paper_id=Paper.paper_id,
+                 paper_name=Paper.paper_name,
+                 paper_summary=Paper.paper_summary,
+                 arxiv_details=arxiv_details)
+    print(f'PAPER: {paper}')
+    paper_resp = paper_table.put_item(Item=paper)
+    if paper_resp["ResponseMetadata"]["HTTPStatusCode"] != 200:
+        return {"ok": False}
+    # update user
+    user_id = Paper.user_id
+    update_resp = user_table.update_item(
+        Key={"user_id": user_id},
+        UpdateExpression="SET papers = list_append(papers, :paper_id)",
+        ExpressionAttributeValues={":paper_id": [paper["paper_id"]]},
+        ReturnValues="UPDATED_NEW")
+
+    if update_resp["ResponseMetadata"]["HTTPStatusCode"] != 200:
+        return {"ok": False}
+    return {"ok": True}
+```
+
+
+- API to get user info and paper info
+
+
+```py:application_name/hello_world/app.py
+@app.get("/api/get_user")
+def get_user(user_id: str):
+
+    get_resp = user_table.get_item(Key={"user_id": user_id})
+    if get_resp["ResponseMetadata"]["HTTPStatusCode"] != 200:
+        return {"ok": False, "user": {}}
+
+    user = get_resp["Item"]
+
+    return {"ok": True, "user": user}
+
+
+@app.get("/api/get_paper")
+def get_user(paper_id: str):
+
+    get_resp = paper_table.get_item(Key={"paper_id": paper_id})
+    if get_resp["ResponseMetadata"]["HTTPStatusCode"] != 200:
+        return {"ok": False, "user": {}}
+
+    paper = get_resp["Item"]
+
+    return {"ok": True, "paper": paper}
+```
+
+After adding the APIs mentioned above the <InlineCode>app.py</InlineCode> will look something like below
+
+```py:application_name/hello_world/app.py
+import json
+from fastapi import FastAPI
+from pydantic import BaseModel
+from mangum import Mangum
+import boto3
+from boto3.dynamodb.conditions import Key, Attr
+from typing import Union
+
+app = FastAPI()
+
+dynamo_resource = boto3.resource("dynamodb")
+
+print(list(dynamo_resource.tables.all()))
+
+user_table = dynamo_resource.Table("ArxivUser")
+paper_table = dynamo_resource.Table("ArxivPaper")
+
+
+class UserModel(BaseModel):
+    user_id: str
+    username: Union[str, None] = None
+    first_name: Union[str, None] = None
+    last_name: Union[str, None] = None
+    papers: Union[list, None] = []
+
+
+class PaperModel(BaseModel):
+    paper_id: str
+    paper_summary: Union[str, None] = None
+    paper_name: Union[str, None] = None
+    arxiv_details: dict = {"pdf": "", "url": ""}
+    user_id: str
+
+
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
+
+
+@app.get("/hello")
+def hello():
+    return {"message": "All is well"}
+
+
+@app.post("/api/add_user")
+def create_user(User: UserModel):
+    user = dict(user_id=User.user_id,
+                username=User.username,
+                first_name=User.first_name,
+                last_name=User.last_name,
+                papers=User.papers if User.papers else [])
+
+    resp = user_table.put_item(Item=user)
+
+    if resp["ResponseMetadata"]["HTTPStatusCode"] == 200:
+        return {"ok": True}
+
+    return {"ok": False}
+
+
+@app.post("/api/add_paper")
+def create_paper(Paper: PaperModel):
+    arxiv_details = Paper.arxiv_details
+    paper = dict(paper_id=Paper.paper_id,
+                 paper_name=Paper.paper_name,
+                 paper_summary=Paper.paper_summary,
+                 arxiv_details=arxiv_details)
+    print(f'PAPER: {paper}')
+    paper_resp = paper_table.put_item(Item=paper)
+    if paper_resp["ResponseMetadata"]["HTTPStatusCode"] != 200:
+        return {"ok": False}
+    # update user
+    user_id = Paper.user_id
+    update_resp = user_table.update_item(
+        Key={"user_id": user_id},
+        UpdateExpression="SET papers = list_append(papers, :paper_id)",
+        ExpressionAttributeValues={":paper_id": [paper["paper_id"]]},
+        ReturnValues="UPDATED_NEW")
+
+    if update_resp["ResponseMetadata"]["HTTPStatusCode"] != 200:
+        return {"ok": False}
+    return {"ok": True}
+
+
+@app.get("/api/get_user")
+def get_user(user_id: str):
+
+    get_resp = user_table.get_item(Key={"user_id": user_id})
+    if get_resp["ResponseMetadata"]["HTTPStatusCode"] != 200:
+        return {"ok": False, "user": {}}
+
+    user = get_resp["Item"]
+
+    return {"ok": True, "user": user}
+
+
+@app.get("/api/get_paper")
+def get_user(paper_id: str):
+
+    get_resp = paper_table.get_item(Key={"paper_id": paper_id})
+    if get_resp["ResponseMetadata"]["HTTPStatusCode"] != 200:
+        return {"ok": False, "user": {}}
+
+    paper = get_resp["Item"]
+
+    return {"ok": True, "paper": paper}
+
+
+lambda_handler = Mangum(app, lifespan="off")
+```
+
+
+## Update Cloudformation Template
+
+For the **Lambda** function to access the tables we need to add some policies to the cloudformation template
+
+Add the following snippet under the Properties
+
+```yaml
+Policies:
+    - AmazonDynamoDBFullAccess
+    - AWSLambdaVPCAccessExecutionRole
+    - Version: "2012-10-17"
+        Statement:
+        - Effect: Allow
+            Action:
+            - dynamodb:*
+            Resource:
+            {
+                "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/ArxivUser",
+                "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/ArxivPaper",
+            }
+```
+
+The updated template file will change to the one below
+
+```yaml:application_name/template.yaml
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  dynamo-and-lambda-python3.7
+
+  Sample SAM Template for dynamo-and-lambda-python3.7
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  HelloWorldFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: hello_world/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      Events:
+        HelloWorld:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /{proxy+}
+            Method: any
+        Http:
+          Type: Api
+          Properties:
+            Path: "/"
+            Method: Any
+      Policies:
+        - AmazonDynamoDBFullAccess
+        - AWSLambdaVPCAccessExecutionRole
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:*
+              Resource:
+                {
+                  "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/ArxivUser",
+                  "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/ArxivPaper",
+                }
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  HelloWorldApi:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+  HelloWorldFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt HelloWorldFunction.Arn
+  HelloWorldFunctionIamRole:
+    Description: "Implicit IAM Role created for Hello World function"
+    Value: !GetAtt HelloWorldFunctionRole.Arn
+```
+
+
+## Build & Deploy
+
+Let's build the function and deploy it. To build the function open the terminal and move into the <InlineCode>application_name</InlineCode>.
+
+Note: <InlineCode>application_name</InlineCode> refers to the name of the application you gave at the start.
+
+Run the following commands
+
+1. Build the application
+
+```bash
+sam build
+```
+
+Once the build process is complete you will see <InlineCode>.aws-sam</InlineCode> folder inside your function. This function contains all the packages and files which will be required to run the application
+
+2. Deploy the Application
+
+```bash
+sam deploy --region <region_name> \
+           --stack-name <name-the-deployment-stack> \
+           --resolve-s3 --capabilities CAPABILITY_IAM
+```
+
+Let's say we want to deploy it to the us-east-2 region and we name the cloudformation stack as **lambda-fastapi-deploy** our command will be
+
+```bash
+sam deploy --region us-east-2 \
+           --stack-name lambda-fastapi-deploy \
+           --resolve-s3 --capabilities CAPABILITY_IAM
+```
+
+Once Cloudformation finishes deploying the application to Lambda it will output the endpoint to access all the APIs in the terminal window.
+
+
+## Configure Github Actions
+
+With Github Actions we can easily setup a continuous development and delivery pipeline by defining our workflow to build and run the application on update
+
+Create a repository on Github and push your code to the <InlineCode>main</InlineCode> branch. 
+
+To deploy the Lambda function we need to add our access key and secret key id and then configure the GitHub action to deploy after every push
+
+1. Go to Setting under the GitHub repository and open the Secrets toggle and tap on Actions. Tap on New Repository Secret to add the keys
+
+<Image
+  src="https://vs-bucket-allthings.s3.us-east-2.amazonaws.com/serverless-blog-series/github-actions-add-keys.png"
+  width={1501 / 2}
+  height={712 / 2}
+  priority
+/>
+
+2. Once you add both the Repository Secrets, it will show the following
+
+<Image
+  src="https://vs-bucket-allthings.s3.us-east-2.amazonaws.com/serverless-blog-series/aws-access-secret-key-id-example.png"
+  width={1501 / 2}
+  height={712 / 2}
+  priority
+/>
+
+In your local system go to the Lambda function folder and create the <InlineCode>.github/workflows</InlineCode> folder if not already created
+
+Inside the <InlineCode>.github/workflows</InlineCode> folder add a <InlineCode>.yaml</InlineCode> to define the application workflow.
+
+We will add <InlineCode>lambda-sam.yaml</InlineCode> inside the <InlineCode>workflows</InlineCode> folder and add the following content
+
+```yaml:application_name/.github/workflows/lambda-sam.yaml
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+      - uses: aws-actions/setup-sam@v2
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+      - run: sam build --use-container
+      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --region us-east-2 --stack-name lambda-fastapi-deploy --resolve-s3 --capabilities CAPABILITY_IAM
+```
+
+
+## Conclusion
+
+In this blog, we created a couple of tables in **DynamoDB**, created APIs using FastAPI to interact with the tables, and configured Github Actions for continuous development and deployment. We can use Lambda functions with different AWS services like **S3**, **SQS**, etc.
