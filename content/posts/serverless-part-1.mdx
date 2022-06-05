@@ -20,17 +20,17 @@ thumbnail: https://images.pexels.com/photos/1148820/pexels-photo-1148820.jpeg
 
 ## Introduction
 
-In the _Part 1_ of this blog we will go through the steps of setting up [_AWS SAM_](https://docs.aws.amazon.com/serverless-application-model/index.html), creating a **Lambda**, and adding _FastAPI_ API endpoints.
+In the _Part 1_ of this blog, we will go through the steps of setting up [_AWS SAM_](https://docs.aws.amazon.com/serverless-application-model/index.html), creating a **Lambda**, and adding _FastAPI_ API endpoints.
 
-You might have heard a lot about _serverless_ functions and their advantages so, in this blog we won't be going into the explanation of, _what are serverless functions?_ or _where and when to use them?_.
+You might have heard a lot about _serverless_ functions and their advantages so in this blog we won't be going into the explanation of, _what are serverless functions?_ or _where and when to use them?_.
 
-Is short, a _serverless_ architecture or _serverless_ function can be use when one just wants to focus into the application and doesn't want to get into the complexities of setting and configuring a server.
+In short, a _serverless_ architecture or _serverless_ function can be use when one just wants to focus on the application building part and doesn't want to get into the complexities of setting and configuring a server.
 
-In more layman terms, a _serverless_ architecture can be compared to **Service Apartments/Paying Guests** in real world. When people want place which is _safe_, _has all the basic necessities_, _has multiple accomodation options_, and _provides freedom to add some customisations_ they look for **Service Apartments/Paying Guests**. Similarly, in case of application development, if you don't want to deal with setting up servers, securing and configuring them, then serverless is the best option.
+In more layman's terms, a _serverless_ architecture can be compared to **Service Apartments/Paying Guests** in the real world. When people want a place which is _safe_, _has all the basic necessities_, _has multiple accomodation options_, and _provides freedom to add some customisations_ they look for **Service Apartments/Paying Guests**. Similarly, in case of application development, if you don't want to deal with setting up servers, securing and configuring them, then serverless is the best option.
 
 ## AWS Serverless Application Model (AWS SAM)
 
-There are a lot of ways you can create a serverless _Lambda_ function on **AWS**. A _Docker_ container with an <InlineCode>lambda_handler</InlineCode> pushed to AWS ECR can be used with Lambda.
+There are many ways you can create a serverless _Lambda_ function on **AWS**. A _Docker_ container with an <InlineCode>lambda_handler</InlineCode> pushed to AWS ECR can be used with Lambda.
 
 Or, zipping the requirements and uploading those to _AWS S3_ and then building a _Lambda_ function via the console can also work.
 
@@ -48,7 +48,7 @@ To follow along with this blog you need to install and configure the following
 
 ## Creating Function
 
-1. Open a new _VS Code editor windown_ and based on your operating system use <InlineCode>cmd + shift + p</InlineCode> or <InlineCode>ctrl + shift + p</InlineCode> and search for **"AWS: Create Lambda SAM Application"** and select it
+1. Open a new _VS Code editor window_ and based on your operating system use <InlineCode>cmd + shift + p</InlineCode> or <InlineCode>ctrl + shift + p</InlineCode> and search for **"AWS: Create Lambda SAM Application"** and select it
 
 <Image
   src="https://vs-bucket-allthings.s3.us-east-2.amazonaws.com/serverless-blog-series/Screenshot%202022-06-05%20at%205.18.46%20PM.png"
@@ -75,7 +75,7 @@ To follow along with this blog you need to install and configure the following
   priority
 />
 
-4. Name you application and save it inside a folder and export the folder to VS Code
+4. Name your application and save it inside a folder and export the folder to VS Code
 
 <Image
   src="https://vs-bucket-allthings.s3.us-east-2.amazonaws.com/serverless-blog-series/Screenshot%202022-06-05%20at%205.21.18%20PM.png"
@@ -183,7 +183,7 @@ Events:
     Method: Any
 ```
 
-After this update the template file should look something like below
+After this update, the template file should look something like below
 
 ```yaml:application_name/template.yaml
 AWSTemplateFormatVersion: "2010-09-09"
@@ -236,7 +236,7 @@ Outputs:
 
 Let's build the function and deploy it. To build the function open the terminal and move into the <InlineCode>application_name</InlineCode>.
 
-Note: <InlineCode>application_name</InlineCode> referes to the name of the application you gave at the start.
+Note: <InlineCode>application_name</InlineCode> refers to the name of the application you gave at the start.
 
 Run the following commands
 
@@ -268,6 +268,6 @@ Once Cloudfront finishes deploying the application to Lambda it will output the 
 
 ## Conclusion
 
-This blog was more of a discovery and setup kind wherein we went through process of creating APIs using **<u>FastAPI</u>** and wrapping it into an adapter called **<u>Mangum</u>** and then deploying it as a Lambda using the _Cloudformation_ template.
+This blog was more of a discovery and setup kind wherein we went through the process of creating APIs using **<u>FastAPI</u>** and wrapping it into an adapter called **<u>Mangum</u>** and then deploying it as a Lambda using the _Cloudformation_ template.
 
-In the next part we will create few tables inside **<u>DynamoDB</u>** and try to access it using the _Lambda_ function we created here
+In the next part, we will create a few tables inside **<u>DynamoDB</u>** and try to access them using the _Lambda_ function we created here
