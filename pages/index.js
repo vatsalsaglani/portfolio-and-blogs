@@ -87,7 +87,7 @@ export default function Home({ posts }) {
           <NameAndInfo />
         </div>
         <div className="mt-12">
-          <FeaturedPosts posts={posts} />
+          <FeaturedPosts posts={posts.slice(0, 2)} />
         </div>
         <div className="mt-12">
           <SkillSets />
