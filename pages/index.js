@@ -154,7 +154,7 @@ export const FeaturedPosts = ({ posts }) => {
       <div className="mb-10 text-3xl text-center md:text-left md:text-4xl text-sky-100 font-Work font-semibold">
         Featured Posts
       </div>
-      <div className="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-4">
+      <div className="grid grid-cols-1 gap-2 lg:grid-cols-2 md:gap-4">
         {posts.map((post, index) => (
           <PostCard key={index} {...post} />
         ))}
@@ -169,7 +169,7 @@ export const SkillSets = () => {
       <div className="mb-10 text-3xl text-center md:text-left md:text-4xl text-sky-100 font-Work font-semibold">
         My Expertise
       </div>
-      <div className="block md:grid gap-6 md:grid-cols-2 md:gap-8">
+      <div className="block md:grid gap-6 lg:grid-cols-2 md:gap-8">
         <div className="mt-4 md:mt-0">
           <div className="text-2xl mb-2 text-sky-50 font-Work font-semibold">
             Data Science & Research
